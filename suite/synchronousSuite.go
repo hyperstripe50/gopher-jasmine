@@ -49,9 +49,10 @@ func (suite *SimpleSuite) assert(spec *Spec) SpecResult {
 func (suite *SimpleSuite) runChildren() {
 	for _, child := range suite.children {
 		if child.Skip {
-			suite.result.Children = append(suite.result.Children, child.Children().Skip())
+			fmt.Printf("SKIP Suite: %s\n", child.Suite.GetName())
+			suite.result.Children = append(suite.result.Children, child.Suite.Skip())
 		} else {
-			suite.result.Children = append(suite.result.Children, child.Children().Run())
+			suite.result.Children = append(suite.result.Children, child.Suite.Run())
 		}
 	}
 }
@@ -94,12 +95,12 @@ func (suite *SimpleSuite) runSpecs() {
 func (suite *SimpleSuite) skipChildren() {
 	for _, child := range suite.children {
 		child.Skip = true
-		suite.result.Children = append(suite.result.Children, child.Children().Skip())
+		suite.result.Children = append(suite.result.Children, child.Suite.Skip())
 	}
 }
 func (suite *SimpleSuite) skipSpecs() {
 	for _, spec := range suite.specs {
-		fmt.Printf("SKIP Child: %s\n", spec.Description)
+		fmt.Printf("SKIP Spec: %s\n", spec.Description)
 		suite.result.SpecResults = append(suite.result.SpecResults, SpecResult{
 			Name:                spec.Description,
 			Status:              "SKIPPED",
@@ -162,12 +163,12 @@ func (suite *SimpleSuite) Xit(description string, assertion func(instance map[st
 	suite.specs = append(suite.specs, Spec{Description: description, Skip: true, It: It{Do: assertion}})
 	return suite
 }
-func (suite *SimpleSuite) Describe(children func() Suite) Suite {
-	suite.children = append(suite.children, Describe{Children: children})
+func (suite *SimpleSuite) Describe(children Suite) Suite {
+	suite.children = append(suite.children, Describe{Suite: children})
 	return suite
 }
-func (suite *SimpleSuite) Xdescribe(children func() Suite) Suite {
-	suite.children = append(suite.children, Describe{Skip: true, Children: children})
+func (suite *SimpleSuite) Xdescribe(children Suite) Suite {
+	suite.children = append(suite.children, Describe{Skip: true, Suite: children})
 	return suite
 }
 
