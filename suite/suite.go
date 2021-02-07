@@ -1,9 +1,8 @@
 package suite
 
 type Describe struct {
-	Description string
-	Skip        bool
-	Build       func() Suite
+	Skip     bool
+	Children func() Suite
 }
 type It struct {
 	Skip bool
@@ -53,8 +52,8 @@ type Suite interface {
 	AfterAll(description string, action func(instance map[string]interface{}) error) Suite
 	It(description string, assertion func(instance map[string]interface{}) error) Suite
 	Xit(description string, assertion func(instance map[string]interface{}) error) Suite
-	Describe(description string, children func() Suite) Suite
-	Xdescribe(description string, children func() Suite) Suite
+	Describe(children func() Suite) Suite
+	Xdescribe(children func() Suite) Suite
 }
 func (result *Result) CalculateResults() Result {
 	var passed, skipped, failed int

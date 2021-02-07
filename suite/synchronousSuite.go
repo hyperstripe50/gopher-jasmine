@@ -21,13 +21,13 @@ func (suite *SimpleSuite) GetName() string {
 }
 func (suite *SimpleSuite) processStep(action *Action) error {
 	if action != nil {
-		fmt.Println(action.Description)
+		fmt.Printf("RUN Action: %s\n", action.Description)
 		return action.Do(suite.instance)
 	}
 	return nil
 }
 func (suite *SimpleSuite) assert(spec *Spec) SpecResult {
-	fmt.Println(spec.Description)
+	fmt.Printf("RUN Spec: %s\n", spec.Description)
 	err := spec.It.Do(suite.instance)
 	if err != nil {
 		return SpecResult{
@@ -48,7 +48,11 @@ func (suite *SimpleSuite) assert(spec *Spec) SpecResult {
 }
 func (suite *SimpleSuite) runChildren() {
 	for _, child := range suite.children {
-		suite.result.Children = append(suite.result.Children, child.Build().Run())
+		if child.Skip {
+			suite.result.Children = append(suite.result.Children, child.Children().Skip())
+		} else {
+			suite.result.Children = append(suite.result.Children, child.Children().Run())
+		}
 	}
 }
 func (suite *SimpleSuite) runSpecs() {
@@ -77,6 +81,7 @@ func (suite *SimpleSuite) runSpecs() {
 				})
 			}
 		} else {
+			fmt.Printf("SKIP Spec: %s\n", spec.Description)
 			suite.result.SpecResults = append(suite.result.SpecResults, SpecResult{
 				Name:                spec.Description,
 				Status:              "SKIPPED",
@@ -89,11 +94,12 @@ func (suite *SimpleSuite) runSpecs() {
 func (suite *SimpleSuite) skipChildren() {
 	for _, child := range suite.children {
 		child.Skip = true
-		suite.result.Children = append(suite.result.Children, child.Build().Skip())
+		suite.result.Children = append(suite.result.Children, child.Children().Skip())
 	}
 }
 func (suite *SimpleSuite) skipSpecs() {
 	for _, spec := range suite.specs {
+		fmt.Printf("SKIP Child: %s\n", spec.Description)
 		suite.result.SpecResults = append(suite.result.SpecResults, SpecResult{
 			Name:                spec.Description,
 			Status:              "SKIPPED",
@@ -108,6 +114,7 @@ func (suite *SimpleSuite) Skip() Result {
 	return suite.result.CalculateResults()
 }
 func (suite *SimpleSuite) Run() Result {
+	fmt.Printf("RUN Suite: %s\n", suite.name)
 	err := suite.processStep(suite.beforeAll)
 	if err == nil {
 		suite.runSpecs()
@@ -155,12 +162,12 @@ func (suite *SimpleSuite) Xit(description string, assertion func(instance map[st
 	suite.specs = append(suite.specs, Spec{Description: description, Skip: true, It: It{Do: assertion}})
 	return suite
 }
-func (suite *SimpleSuite) Describe(description string, children func() Suite) Suite {
-	suite.children = append(suite.children, Describe{Description: description, Build: children})
+func (suite *SimpleSuite) Describe(children func() Suite) Suite {
+	suite.children = append(suite.children, Describe{Children: children})
 	return suite
 }
-func (suite *SimpleSuite) Xdescribe(description string, children func() Suite) Suite {
-	suite.children = append(suite.children, Describe{Description: description, Skip: true, Build: children})
+func (suite *SimpleSuite) Xdescribe(children func() Suite) Suite {
+	suite.children = append(suite.children, Describe{Skip: true, Children: children})
 	return suite
 }
 

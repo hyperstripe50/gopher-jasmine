@@ -35,6 +35,34 @@ func TestSuiteWithSingleTest(t *testing.T) {
 		t.Errorf("expected 0 skipped but got %d", result.Skipped)
 	}
 }
+func TestSuiteCanSkipIt(t *testing.T) {
+	var err error
+	NewSynchronousSuite("parent suite").
+		Xit("should skip one top level test", func(instance map[string]interface{}) error {
+			err = fmt.Errorf("exit 1")
+			return err
+		}).Run()
+
+	if err != nil {
+		t.Errorf("expected error to be nil but was not")
+	}
+}
+func TestSuiteCanSkipChildren(t *testing.T) {
+	var err error
+	NewSynchronousSuite("parent suite").
+		Xdescribe(func() Suite {
+			return NewSynchronousSuite("skip first child suite").
+				It("should run one child suite", func(instance map[string]interface{}) error {
+					err = fmt.Errorf("child exit 1")
+					return err
+				})
+		}).
+		Run()
+
+	if err != nil {
+		t.Errorf("expected error to be nil but was not")
+	}
+}
 func TestSuiteWithSingleTestAndChildren(t *testing.T) {
 	var err1 error
 	var err2 error
@@ -43,7 +71,7 @@ func TestSuiteWithSingleTestAndChildren(t *testing.T) {
 			err1 = fmt.Errorf("top level exit 1")
 			return err1
 		}).
-		Describe("child suites", func() Suite {
+		Describe(func() Suite {
 			return NewSynchronousSuite("first child suite").
 				It("should run one child suite", func(instance map[string]interface{}) error {
 					err2 = fmt.Errorf("child exit 1")
