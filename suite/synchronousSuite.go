@@ -16,6 +16,9 @@ type SimpleSuite struct {
 func NewSynchronousSuite(name string) *SimpleSuite {
 	return &SimpleSuite{name: name, instance: make(map[string]interface{}), result: Result{Name: name}}
 }
+func (suite *SimpleSuite) GetName() string {
+	return suite.name
+}
 func (suite *SimpleSuite) processStep(action *Action) error {
 	if action != nil {
 		fmt.Println(action.Description)

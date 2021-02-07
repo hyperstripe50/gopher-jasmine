@@ -46,6 +46,7 @@ type Result struct {
 type Suite interface {
 	Run() Result
 	Skip() Result
+	GetName() string
 	BeforeEach(description string, action func(instance map[string]interface{}) error) Suite
 	AfterEach(description string, action func(instance map[string]interface{}) error) Suite
 	BeforeAll(description string, action func(instance map[string]interface{}) error) Suite
