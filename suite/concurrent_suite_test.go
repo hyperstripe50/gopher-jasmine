@@ -3,8 +3,59 @@ package suite
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
+func TestConcurrentSuiteCanRunSpecsConcurrently(t *testing.T) {
+	var err error
+	start := time.Now()
+	NewConcurrentSuite("parent suite").
+		It("should run first test concurrently", func(instance map[string]interface{}) error {
+			time.Sleep(2 * time.Second)
+			return err
+		}).
+		It("should run second test concurrently", func(instance map[string]interface{}) error {
+			time.Sleep(2 * time.Second)
+			return err
+		}).Run()
+	end := time.Now()
+	elapsed := end.Sub(start).Seconds()
+	fmt.Printf("suite ran in %f seconds\n", elapsed)
+	if elapsed > 3 {
+		t.Errorf("expected tests to take less than 3 seconds (but took %f) to show concurrency.", elapsed)
+	}
+}
+func TestConcurrentSuiteCanRunChildrenConcurrently(t *testing.T) {
+	var err error
+	start := time.Now()
+	NewConcurrentSuite("parent suite").
+		Describe(NewConcurrentSuite("first child").
+			It("should run first test concurrently", func(instance map[string]interface{}) error {
+				time.Sleep(2 * time.Second)
+				return err
+			}).
+			It("should run second test concurrently", func(instance map[string]interface{}) error {
+				time.Sleep(2 * time.Second)
+				return err
+			})).
+		Describe(NewConcurrentSuite("second child").
+			It("should run first test concurrently", func(instance map[string]interface{}) error {
+				time.Sleep(2 * time.Second)
+				return err
+			}).
+			It("should run second test concurrently", func(instance map[string]interface{}) error {
+				time.Sleep(2 * time.Second)
+				return err
+			})).
+		Run()
+
+	end := time.Now()
+	elapsed := end.Sub(start).Seconds()
+	fmt.Printf("suite ran in %f seconds\n", elapsed)
+	if elapsed > 5 {
+		t.Errorf("expected tests to take less than 5 seconds (but took %f) to show concurrency.", elapsed)
+	}
+}
 func TestConcurrentSuiteWithSingleTest(t *testing.T) {
 	var err error
 	result := NewConcurrentSuite("parent suite").
