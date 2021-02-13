@@ -27,8 +27,8 @@ func (suite *SequentialSuite) GetName() string {
 	return suite.name
 }
 func (suite *SequentialSuite) Skip() Result {
-	skipSpecsSequentially(suite.specs)
-	skipChildrenSequentially(suite.children)
+	suite.result.SpecResults = skipSpecsSequentially(suite.specs)
+	suite.result.Children = skipChildrenSequentially(suite.children)
 	return suite.result.CalculateResults()
 }
 func (suite *SequentialSuite) Run() Result {
@@ -55,7 +55,9 @@ func (suite *SequentialSuite) Run() Result {
 		}
 		return suite.Skip()
 	}
-	return suite.result.CalculateResults()
+	result := suite.result.CalculateResults()
+	fmt.Printf("RESULTS for Suite '%s': passed: %d, skipped: %d, failed: %d\n", suite.GetName(), result.TotalPassed, result.TotalSkipped, result.TotalFailed)
+	return result
 }
 func (suite *SequentialSuite) BeforeEach(description string, action func(instance map[string]interface{}) error) Suite {
 	suite.beforeEach = &Action{Description: description, Do: action}

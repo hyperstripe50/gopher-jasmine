@@ -25,8 +25,8 @@ func (suite *ConcurrentSuite) GetName() string {
 	return suite.name
 }
 func (suite *ConcurrentSuite) Skip() Result {
-	skipSpecsConcurrently(suite.specs)
-	skipChildrenConcurrently(suite.children)
+	suite.result.SpecResults = skipSpecsConcurrently(suite.specs)
+	suite.result.Children = skipChildrenConcurrently(suite.children)
 	return suite.result.CalculateResults()
 }
 func (suite *ConcurrentSuite) Run() Result {
@@ -53,7 +53,9 @@ func (suite *ConcurrentSuite) Run() Result {
 		}
 		return suite.Skip()
 	}
-	return suite.result.CalculateResults()
+	result := suite.result.CalculateResults()
+	fmt.Printf("RESULTS for Suite '%s': passed: %d, skipped: %d, failed: %d\n", suite.GetName(), result.TotalPassed, result.TotalSkipped, result.TotalFailed)
+	return result
 }
 func (suite *ConcurrentSuite) BeforeEach(description string, action func(instance map[string]interface{}) error) Suite {
 	suite.beforeEach = &Action{Description: description, Do: action}
@@ -88,6 +90,7 @@ func (suite *ConcurrentSuite) Xdescribe(children Suite) Suite {
 	return suite
 }
 
+// concurrentSuite.go
 func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeEach *Action, assert func(spec *Spec) SpecResult, afterEach *Action) []SpecResult {
 	results := make([]SpecResult, 0)
 	// Add a go routine to run specs concurrently.
