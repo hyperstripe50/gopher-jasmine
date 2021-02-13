@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestSuiteWithSingleTest(t *testing.T) {
+func TestSequentialSuiteWithSingleTest(t *testing.T) {
 	var err error
-	result := NewSynchronousSuite("parent suite").
+	result := NewSequentialSuite("parent suite").
 		It("should run one top level test", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("exit 1")
 			return err
@@ -35,9 +35,9 @@ func TestSuiteWithSingleTest(t *testing.T) {
 		t.Errorf("expected 0 skipped but got %d", result.Skipped)
 	}
 }
-func TestSuiteCanSkipIt(t *testing.T) {
+func TestSequentialSuiteCanSkipIt(t *testing.T) {
 	var err error
-	NewSynchronousSuite("parent suite").
+	NewSequentialSuite("parent suite").
 		Xit("should skip one top level test", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("exit 1")
 			return err
@@ -47,10 +47,10 @@ func TestSuiteCanSkipIt(t *testing.T) {
 		t.Errorf("expected error to be nil but was not")
 	}
 }
-func TestSuiteCanSkipChildren(t *testing.T) {
+func TestSequentialSuiteCanSkipChildren(t *testing.T) {
 	var err error
-	NewSynchronousSuite("parent suite").
-		Xdescribe(NewSynchronousSuite("skip first child suite").
+	NewSequentialSuite("parent suite").
+		Xdescribe(NewSequentialSuite("skip first child suite").
 			It("should run one child suite", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("child exit 1")
 			return err
@@ -60,15 +60,15 @@ func TestSuiteCanSkipChildren(t *testing.T) {
 		t.Errorf("expected error to be nil but was not")
 	}
 }
-func TestSuiteWithSingleTestAndChildren(t *testing.T) {
+func TestSequentialSuiteWithSingleTestAndChildren(t *testing.T) {
 	var err1 error
 	var err2 error
-	result := NewSynchronousSuite("parent suite").
+	result := NewSequentialSuite("parent suite").
 		It("should run one top level test", func(instance map[string]interface{}) error {
 			err1 = fmt.Errorf("top level exit 1")
 			return err1
 		}).
-		Describe(NewSynchronousSuite("first child suite").
+		Describe(NewSequentialSuite("first child suite").
 				It("should run one child suite", func(instance map[string]interface{}) error {
 					err2 = fmt.Errorf("child exit 1")
 					return err2
@@ -100,9 +100,9 @@ func TestSuiteWithSingleTestAndChildren(t *testing.T) {
 		t.Errorf("expected 0 skipped but got %d", result.Skipped)
 	}
 }
-func TestSuiteWithBeforeAll(t *testing.T) {
+func TestSequentialSuiteWithBeforeAll(t *testing.T) {
 	count := 0
-	NewSynchronousSuite("parent suite").
+	NewSequentialSuite("parent suite").
 		BeforeAll("set id in before all", func(instance map[string]interface{}) error {
 			if count == 0 {
 				instance["id"] = "id"
@@ -125,8 +125,8 @@ func TestSuiteWithBeforeAll(t *testing.T) {
 			return nil
 		}).Run()
 }
-func TestSuiteWithBeforeEach(t *testing.T) {
-	NewSynchronousSuite("parent suite").
+func TestSequentialSuiteWithBeforeEach(t *testing.T) {
+	NewSequentialSuite("parent suite").
 		BeforeEach("set id in before each", func(instance map[string]interface{}) error {
 			instance["id"] = "id"
 			return nil
@@ -138,8 +138,8 @@ func TestSuiteWithBeforeEach(t *testing.T) {
 			return nil
 		}).Run()
 }
-func TestSuiteWithAfterEach(t *testing.T) {
-	NewSynchronousSuite("parent suite").
+func TestSequentialSuiteWithAfterEach(t *testing.T) {
+	NewSequentialSuite("parent suite").
 		It("should run after each after each suite", func(instance map[string]interface{}) error {
 			instance["id"] = "id"
 			return nil
@@ -151,8 +151,8 @@ func TestSuiteWithAfterEach(t *testing.T) {
 		return nil
 	}).Run()
 }
-func TestSuiteWithAfterAll(t *testing.T) {
-	NewSynchronousSuite("parent suite").
+func TestSequentialSuiteWithAfterAll(t *testing.T) {
+	NewSequentialSuite("parent suite").
 		It("1: should run before all before all suites", func(instance map[string]interface{}) error {
 			instance["id"] = "wrong"
 			return nil

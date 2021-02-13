@@ -8,13 +8,15 @@ import (
 	"net/http"
 	"strings"
 )
+
 type ErrorResponse struct {
-	Status string	`json:"status"`
-	Message string	`json:"message"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 type Api struct {
 	suites []suite.Suite
 }
+
 func NewApi(suites []suite.Suite) *Api {
 	return &Api{
 		suites: suites,

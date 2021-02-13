@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
-	s := suite.NewSynchronousSuite("parent suite").
+	s := suite.NewSequentialSuite("parent suite").
 		It("should run one top level test", func(instance map[string]interface{}) error {
 			return nil
 		}).
-		Describe(suite.NewSynchronousSuite("first child suite").
+		Describe(suite.NewSequentialSuite("first child suite").
 			It("should run one child test", func(instance map[string]interface{}) error {
 				return nil
 			}),
