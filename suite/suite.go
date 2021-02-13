@@ -23,7 +23,6 @@ type Spec struct {
 }
 type ActionException struct {
 	Name    string
-	Status  string
 	Message string
 }
 type SpecResult struct {
@@ -118,9 +117,10 @@ func runSpec(spec Spec, instance map[string]interface{}, beforeEach *Action, ass
 		err = beforeEach.Do(instance)
 		if err != nil {
 			return SpecResult{
-				Name:   beforeEach.Description,
+				Name:   spec.Description,
 				Status: "SKIPPED",
 				BeforeEachException: &ActionException{
+					Name:   beforeEach.Description,
 					Message: err.Error(),
 				},
 				AfterEachException: nil,
@@ -133,7 +133,6 @@ func runSpec(spec Spec, instance map[string]interface{}, beforeEach *Action, ass
 		if err != nil {
 			specResult.AfterEachException = &ActionException{
 				Name:    afterEach.Description,
-				Status:  "FAILED",
 				Message: err.Error(),
 			}
 		}

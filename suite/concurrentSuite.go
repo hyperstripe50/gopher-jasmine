@@ -41,14 +41,12 @@ func (suite *ConcurrentSuite) Run() Result {
 		if err != nil {
 			suite.result.AfterAllException = &ActionException{
 				Name:    suite.afterAll.Description,
-				Status:  "FAILED",
 				Message: err.Error(),
 			}
 		}
 	} else {
 		suite.result.BeforeAllException = &ActionException{
 			Name:    suite.beforeAll.Description,
-			Status:  "FAILED",
 			Message: err.Error(),
 		}
 		return suite.Skip()
@@ -90,7 +88,6 @@ func (suite *ConcurrentSuite) Xdescribe(children Suite) Suite {
 	return suite
 }
 
-// concurrentSuite.go
 func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeEach *Action, assert func(spec *Spec) SpecResult, afterEach *Action) []SpecResult {
 	results := make([]SpecResult, 0)
 	// Add a go routine to run specs concurrently.

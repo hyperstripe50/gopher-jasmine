@@ -43,14 +43,12 @@ func (suite *SequentialSuite) Run() Result {
 		if err != nil {
 			suite.result.AfterAllException = &ActionException{
 				Name:    suite.afterAll.Description,
-				Status:  "FAILED",
 				Message: err.Error(),
 			}
 		}
 	} else {
 		suite.result.BeforeAllException = &ActionException{
 			Name:    suite.beforeAll.Description,
-			Status:  "FAILED",
 			Message: err.Error(),
 		}
 		return suite.Skip()
