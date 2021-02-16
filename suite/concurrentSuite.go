@@ -94,20 +94,20 @@ func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeE
 	var wg sync.WaitGroup
 	for _, spec := range specs {
 		wg.Add(1)
-		go func() {
+		go func(s Spec) {
 			defer wg.Done()
 			if !spec.Skip {
-				results = append(results, runSpec(spec, instance, beforeEach, assert, afterEach))
+				results = append(results, runSpec(s, instance, beforeEach, assert, afterEach))
 			} else {
-				fmt.Printf("SKIP Spec: %s\n", spec.Description)
+				fmt.Printf("SKIP Spec: %s\n", s.Description)
 				results = append(results, SpecResult{
-					Name:                spec.Description,
+					Name:                s.Description,
 					Status:              "SKIPPED",
 					BeforeEachException: nil,
 					AfterEachException:  nil,
 				})
 			}
-		}()
+		}(spec)
 		wg.Wait()
 	}
 	return results
@@ -117,10 +117,10 @@ func runChildrenConcurrently(children []Describe) []Result {
 	var wg sync.WaitGroup
 	for _, child := range children {
 		wg.Add(1)
-		go func() {
+		go func(c Describe) {
 			defer wg.Done()
-			runChild(child)
-		}()
+			results = append(results, runChild(c))
+		}(child)
 		wg.Wait()
 	}
 	return results
@@ -130,10 +130,10 @@ func skipSpecsConcurrently(specs []Spec) []SpecResult {
 	var wg sync.WaitGroup
 	for _, spec := range specs {
 		wg.Add(1)
-		go func() {
+		go func(s Spec) {
 			defer wg.Done()
-			skipSpec(spec)
-		}()
+			results = append(results, skipSpec(s))
+		}(spec)
 		wg.Wait()
 	}
 	return results
@@ -143,10 +143,10 @@ func skipChildrenConcurrently(children []Describe) []Result {
 	var wg sync.WaitGroup
 	for _, child := range children {
 		wg.Add(1)
-		go func() {
+		go func(c Describe) {
 			defer wg.Done()
-			skipChild(child)
-		}()
+			results = append(results, skipChild(c))
+		}(child)
 		wg.Wait()
 	}
 	return results
