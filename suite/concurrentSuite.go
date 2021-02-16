@@ -90,14 +90,14 @@ func (suite *ConcurrentSuite) Xdescribe(children Suite) Suite {
 }
 
 func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeEach *Action, assert func(spec *Spec) SpecResult, afterEach *Action) []SpecResult {
-	results := make([]SpecResult, 0)
+	results := make([]SpecResult, len(specs))
 	var wg sync.WaitGroup
-	for _, spec := range specs {
+	for index, spec := range specs {
 		wg.Add(1)
-		go func(s Spec) {
+		go func(s Spec, i int) {
 			defer wg.Done()
 			if !s.Skip {
-				results = append(results, runSpec(s, instance, beforeEach, assert, afterEach))
+				results[i] = runSpec(s, instance, beforeEach, assert, afterEach)
 			} else {
 				fmt.Printf("SKIP Spec: %s\n", s.Description)
 				results = append(results, SpecResult{
@@ -107,46 +107,46 @@ func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeE
 					AfterEachException:  nil,
 				})
 			}
-		}(spec)
+		}(spec, index)
 	}
 	wg.Wait()
 	return results
 }
 func runChildrenConcurrently(children []Describe) []Result {
-	results := make([]Result, 0)
+	results := make([]Result, len(children))
 	var wg sync.WaitGroup
-	for _, child := range children {
+	for index, child := range children {
 		wg.Add(1)
-		go func(c Describe) {
+		go func(c Describe, i int) {
 			defer wg.Done()
-			results = append(results, runChild(c))
-		}(child)
+			results[i] = runChild(c)
+		}(child, index)
 	}
 	wg.Wait()
 	return results
 }
 func skipSpecsConcurrently(specs []Spec) []SpecResult {
-	results := make([]SpecResult, 0)
+	results := make([]SpecResult, len(specs))
 	var wg sync.WaitGroup
-	for _, spec := range specs {
+	for index, spec := range specs {
 		wg.Add(1)
-		go func(s Spec) {
-			//defer wg.Done()
-			results = append(results, skipSpec(s))
-		}(spec)
+		go func(s Spec, i int) {
+			defer wg.Done()
+			results[i] = skipSpec(s)
+		}(spec, index)
 	}
 	wg.Wait()
 	return results
 }
 func skipChildrenConcurrently(children []Describe) []Result {
-	results := make([]Result, 0)
+	results := make([]Result, len(children))
 	var wg sync.WaitGroup
-	for _, child := range children {
+	for index, child := range children {
 		wg.Add(1)
-		go func(c Describe) {
+		go func(c Describe, i int) {
 			defer wg.Done()
-			results = append(results, skipChild(c))
-		}(child)
+			results[i] = skipChild(c)
+		}(child, index)
 	}
 	wg.Wait()
 	return results
