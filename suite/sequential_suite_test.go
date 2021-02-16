@@ -38,7 +38,7 @@ func TestSequentialSuiteWithSingleTest(t *testing.T) {
 func TestSequentialSuiteCanSkipIt(t *testing.T) {
 	var err error
 	NewSequentialSuite("parent suite").
-		Xit("should skip one top level test", func(instance map[string]interface{}) error {
+		XIt("should skip one top level test", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("exit 1")
 			return err
 		}).Run()
@@ -50,7 +50,7 @@ func TestSequentialSuiteCanSkipIt(t *testing.T) {
 func TestSequentialSuiteCanSkipChildren(t *testing.T) {
 	var err error
 	NewSequentialSuite("parent suite").
-		Xdescribe(NewSequentialSuite("skip first child suite").
+		XDescribe(NewSequentialSuite("skip first child suite").
 			It("should run one child suite", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("child exit 1")
 			return err

@@ -95,7 +95,7 @@ func TestConcurrentSuiteWithSingleTest(t *testing.T) {
 func TestConcurrentSuiteCanSkipIt(t *testing.T) {
 	var err error
 	NewConcurrentSuite("parent suite").
-		Xit("should skip one top level test", func(instance map[string]interface{}) error {
+		XIt("should skip one top level test", func(instance map[string]interface{}) error {
 			err = fmt.Errorf("exit 1")
 			return err
 		}).Run()

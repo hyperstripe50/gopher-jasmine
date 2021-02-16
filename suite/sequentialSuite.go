@@ -77,7 +77,7 @@ func (suite *SequentialSuite) It(description string, assertion func(instance map
 	suite.specs = append(suite.specs, Spec{Description: description, It: It{Do: assertion}})
 	return suite
 }
-func (suite *SequentialSuite) Xit(description string, assertion func(instance map[string]interface{}) error) Suite {
+func (suite *SequentialSuite) XIt(description string, assertion func(instance map[string]interface{}) error) Suite {
 	suite.specs = append(suite.specs, Spec{Description: description, Skip: true, It: It{Do: assertion}})
 	return suite
 }
@@ -85,7 +85,7 @@ func (suite *SequentialSuite) Describe(children Suite) Suite {
 	suite.children = append(suite.children, Describe{Suite: children})
 	return suite
 }
-func (suite *SequentialSuite) Xdescribe(children Suite) Suite {
+func (suite *SequentialSuite) XDescribe(children Suite) Suite {
 	suite.children = append(suite.children, Describe{Skip: true, Suite: children})
 	return suite
 }

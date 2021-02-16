@@ -54,9 +54,9 @@ type Suite interface {
 	BeforeAll(description string, action func(instance map[string]interface{}) error) Suite
 	AfterAll(description string, action func(instance map[string]interface{}) error) Suite
 	It(description string, assertion func(instance map[string]interface{}) error) Suite
-	Xit(description string, assertion func(instance map[string]interface{}) error) Suite
+	XIt(description string, assertion func(instance map[string]interface{}) error) Suite
 	Describe(children Suite) Suite
-	Xdescribe(children Suite) Suite
+	XDescribe(children Suite) Suite
 }
 
 func createProcessStepFn(instance map[string]interface{}) func(action *Action) error {
