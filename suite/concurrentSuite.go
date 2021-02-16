@@ -2,18 +2,19 @@ package suite
 
 import (
 	"fmt"
+	"time"
 )
 
 type ConcurrentSuite struct {
-	name       string
-	specs      []Spec
-	children   []Describe
-	beforeEach *Action
-	beforeAll  *Action
-	afterEach  *Action
-	afterAll   *Action
-	instance   map[string]interface{}
-	result     Result
+	name        string
+	specs       []Spec
+	children    []Describe
+	beforeEach  *Action
+	beforeAll   *Action
+	afterEach   *Action
+	afterAll    *Action
+	instance    map[string]interface{}
+	result      Result
 	processStep func(action *Action) error
 	assert      func(spec *Spec) SpecResult
 }
@@ -90,21 +91,43 @@ func (suite *ConcurrentSuite) Xdescribe(children Suite) Suite {
 
 func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeEach *Action, assert func(spec *Spec) SpecResult, afterEach *Action) []SpecResult {
 	results := make([]SpecResult, 0)
-	// Add a go routine to run specs concurrently.
+	for _, spec := range specs {
+		if !spec.Skip {
+			go runSpec(spec, instance, beforeEach, assert, afterEach)
+		} else {
+			fmt.Printf("SKIP Spec: %s\n", spec.Description)
+			results = append(results, SpecResult{
+				Name:                spec.Description,
+				Status:              "SKIPPED",
+				BeforeEachException: nil,
+				AfterEachException:  nil,
+			})
+		}
+	}
+	time.Sleep(time.Second)
 	return results
 }
 func runChildrenConcurrently(children []Describe) []Result {
 	results := make([]Result, 0)
-	// Add a go routine to run children concurrently.
+	for _, child := range children {
+		go runChild(child)
+	}
+	time.Sleep(time.Second)
 	return results
 }
 func skipSpecsConcurrently(specs []Spec) []SpecResult {
 	results := make([]SpecResult, 0)
-	// Add a go routine to skip specs concurrently.
+	for _, spec := range specs {
+		go skipSpec(spec)
+	}
+	time.Sleep(time.Second)
 	return results
 }
 func skipChildrenConcurrently(children []Describe) []Result {
 	results := make([]Result, 0)
-	// Add a go routine to skip children concurrently.
+	for _, child := range children {
+		go skipChild(child)
+	}
+	time.Sleep(time.Second)
 	return results
 }
