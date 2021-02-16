@@ -9,10 +9,10 @@ import (
 func TestConcurrentSuiteCanRunSpecsConcurrently(t *testing.T) {
 	var err error
 	start := time.Now()
-	NewConcurrentSuite("parent suite").
+	results := NewConcurrentSuite("parent suite").
 		It("should run first test concurrently", func(instance map[string]interface{}) error {
 			time.Sleep(2 * time.Second)
-			return err
+			return fmt.Errorf("some error!")
 		}).
 		It("should run second test concurrently", func(instance map[string]interface{}) error {
 			time.Sleep(2 * time.Second)
@@ -24,15 +24,18 @@ func TestConcurrentSuiteCanRunSpecsConcurrently(t *testing.T) {
 	if elapsed > 3 {
 		t.Errorf("expected tests to take less than 3 seconds (but took %f) to show concurrency.", elapsed)
 	}
+	if results.TotalFailed != 1 {
+		t.Errorf("expected 1 failed test, but got %d.", results.TotalFailed)
+	}
 }
 func TestConcurrentSuiteCanRunChildrenConcurrently(t *testing.T) {
 	var err error
 	start := time.Now()
-	NewConcurrentSuite("parent suite").
+	results := NewConcurrentSuite("parent suite").
 		Describe(NewConcurrentSuite("first child").
 			It("should run first test concurrently", func(instance map[string]interface{}) error {
 				time.Sleep(2 * time.Second)
-				return err
+				return fmt.Errorf("some error!")
 			}).
 			It("should run second test concurrently", func(instance map[string]interface{}) error {
 				time.Sleep(2 * time.Second)
@@ -41,7 +44,7 @@ func TestConcurrentSuiteCanRunChildrenConcurrently(t *testing.T) {
 		Describe(NewConcurrentSuite("second child").
 			It("should run first test concurrently", func(instance map[string]interface{}) error {
 				time.Sleep(2 * time.Second)
-				return err
+				return fmt.Errorf("some error!")
 			}).
 			It("should run second test concurrently", func(instance map[string]interface{}) error {
 				time.Sleep(2 * time.Second)
@@ -54,6 +57,9 @@ func TestConcurrentSuiteCanRunChildrenConcurrently(t *testing.T) {
 	fmt.Printf("suite ran in %f seconds\n", elapsed)
 	if elapsed > 5 {
 		t.Errorf("expected tests to take less than 5 seconds (but took %f) to show concurrency.", elapsed)
+	}
+	if results.TotalFailed != 2 {
+		t.Errorf("expected 2 failed test, but got %d.", results.TotalFailed)
 	}
 }
 func TestConcurrentSuiteWithSingleTest(t *testing.T) {
