@@ -14,8 +14,8 @@ This suite is served at `localhost:9091`.
 package main
 
 import (
-  "gopher-jasmine/api"
-  "gopher-jasmine/suite"
+  "github.com/hyperstripe50/gopher-jasmine/suite"
+  "github.com/hyperstripe50/gopher-jasmine/api"
 )
 
 func main() {
