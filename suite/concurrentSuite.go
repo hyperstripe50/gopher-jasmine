@@ -96,7 +96,7 @@ func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeE
 		wg.Add(1)
 		go func(s Spec) {
 			defer wg.Done()
-			if !spec.Skip {
+			if !s.Skip {
 				results = append(results, runSpec(s, instance, beforeEach, assert, afterEach))
 			} else {
 				fmt.Printf("SKIP Spec: %s\n", s.Description)
@@ -108,8 +108,8 @@ func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeE
 				})
 			}
 		}(spec)
-		wg.Wait()
 	}
+	wg.Wait()
 	return results
 }
 func runChildrenConcurrently(children []Describe) []Result {
@@ -121,8 +121,8 @@ func runChildrenConcurrently(children []Describe) []Result {
 			defer wg.Done()
 			results = append(results, runChild(c))
 		}(child)
-		wg.Wait()
 	}
+	wg.Wait()
 	return results
 }
 func skipSpecsConcurrently(specs []Spec) []SpecResult {
@@ -131,11 +131,11 @@ func skipSpecsConcurrently(specs []Spec) []SpecResult {
 	for _, spec := range specs {
 		wg.Add(1)
 		go func(s Spec) {
-			defer wg.Done()
+			//defer wg.Done()
 			results = append(results, skipSpec(s))
 		}(spec)
-		wg.Wait()
 	}
+	wg.Wait()
 	return results
 }
 func skipChildrenConcurrently(children []Describe) []Result {
@@ -147,7 +147,7 @@ func skipChildrenConcurrently(children []Describe) []Result {
 			defer wg.Done()
 			results = append(results, skipChild(c))
 		}(child)
-		wg.Wait()
 	}
+	wg.Wait()
 	return results
 }
