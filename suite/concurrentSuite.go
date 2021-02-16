@@ -2,7 +2,7 @@ package suite
 
 import (
 	"fmt"
-	"time"
+	"sync"
 )
 
 type ConcurrentSuite struct {
@@ -91,43 +91,63 @@ func (suite *ConcurrentSuite) Xdescribe(children Suite) Suite {
 
 func runSpecsConcurrently(specs []Spec, instance map[string]interface{}, beforeEach *Action, assert func(spec *Spec) SpecResult, afterEach *Action) []SpecResult {
 	results := make([]SpecResult, 0)
+	var wg sync.WaitGroup
 	for _, spec := range specs {
-		if !spec.Skip {
-			go runSpec(spec, instance, beforeEach, assert, afterEach)
-		} else {
-			fmt.Printf("SKIP Spec: %s\n", spec.Description)
-			results = append(results, SpecResult{
-				Name:                spec.Description,
-				Status:              "SKIPPED",
-				BeforeEachException: nil,
-				AfterEachException:  nil,
-			})
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if !spec.Skip {
+				results = append(results, runSpec(spec, instance, beforeEach, assert, afterEach))
+			} else {
+				fmt.Printf("SKIP Spec: %s\n", spec.Description)
+				results = append(results, SpecResult{
+					Name:                spec.Description,
+					Status:              "SKIPPED",
+					BeforeEachException: nil,
+					AfterEachException:  nil,
+				})
+			}
+		}()
+		wg.Wait()
 	}
-	time.Sleep(time.Second)
 	return results
 }
 func runChildrenConcurrently(children []Describe) []Result {
 	results := make([]Result, 0)
+	var wg sync.WaitGroup
 	for _, child := range children {
-		go runChild(child)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			runChild(child)
+		}()
+		wg.Wait()
 	}
-	time.Sleep(time.Second)
 	return results
 }
 func skipSpecsConcurrently(specs []Spec) []SpecResult {
 	results := make([]SpecResult, 0)
+	var wg sync.WaitGroup
 	for _, spec := range specs {
-		go skipSpec(spec)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			skipSpec(spec)
+		}()
+		wg.Wait()
 	}
-	time.Sleep(time.Second)
 	return results
 }
 func skipChildrenConcurrently(children []Describe) []Result {
 	results := make([]Result, 0)
+	var wg sync.WaitGroup
 	for _, child := range children {
-		go skipChild(child)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			skipChild(child)
+		}()
+		wg.Wait()
 	}
-	time.Sleep(time.Second)
 	return results
 }
