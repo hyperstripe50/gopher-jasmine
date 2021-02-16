@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"gopher-jasmine/suite"
+	"github.com/hyperstripe50/gopher-jasmine/suite"
 	"net/http"
 	"strings"
 )
